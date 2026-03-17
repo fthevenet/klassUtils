@@ -18,3 +18,13 @@ Generate and load 600K classes, wait for user input to terminate:
 ```
 java  -XX:-UseCompressedClassPointers -XX:+RecordDynamicDumpInfo -XX:SharedArchiveFile=static_noCCS.jsa -jar build/libs/klassUtils-0.1.jar load -n 600000 -w
 ```
+
+Generate, load and dump 2M classes with CCP on
+```
+java -XX:CompressedClassSpaceSize=4g -XX:ArchiveClassesAtExit=CCP_2M.jsa -XX:SharedArchiveFile=static_noCCS_.jsa -jar build/libs/klassUtils-0.1.jar load -n 2000000
+```
+
+Generate, load and dump 2M classes with CCP off
+```
+java  -XX:-UseCompressedClassPointers -XX:CompressedClassSpaceSize=4g -XX:ArchiveClassesAtExit=noCCP_2M.jsa -XX:SharedArchiveFile=static_noCCS_.jsa -jar build/libs/klassUtils-0.1.jar load -n 2000000
+```
