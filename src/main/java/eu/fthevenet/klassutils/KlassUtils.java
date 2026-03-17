@@ -16,6 +16,7 @@
 
 package eu.fthevenet.klassutils;
 
+import net.bytebuddy.ByteBuddy;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -91,7 +92,7 @@ public class KlassUtils {
         }
         try (var writer = new BufferedWriter(new FileWriter(output.resolve("Main.java").toString()))) {
             writer.write(String.format("""
-                    public class Main {
+                    public class ClassLoadTest {
                         public static void main(String[] args) {
                             try {
                                 for (int i = 0; i < %s; i++) {
@@ -112,6 +113,45 @@ public class KlassUtils {
                     }
                     """);
         }
+        return 0;
+    }
+
+
+    @Command(name = "load-dummy-classes",
+            aliases = {"load"},
+            mixinStandardHelpOptions = true
+    )
+    public int emitDummyClasses(
+            @Option(names = {"-n", "--num-classes"},
+                    description = "number of classes to generate",
+                    defaultValue = "1") int n,
+            @Option(names = {"-w", "--wait"},
+                    description = "Wait for user action before halting") boolean wait) {
+        int progress = -1;
+
+        // retain the objects to avoid class unloading
+        Object[] keepAlive = new Object[n];
+
+        for (int i = 0; i < n; i++) {
+            String className = "Class_" + i;
+            keepAlive[i] = new ByteBuddy()
+                    .subclass(Object.class)
+                    .name(className)
+                    .make()
+                    .load(getClass().getClassLoader())
+                    .getLoaded();
+            int current = (int) Math.round(((double) i / n) * 100);
+            if (current > progress) {
+                IO.print(String.format("%s%%...", current));
+                progress = current;
+            }
+        }
+
+        if (wait) {
+            IO.readln("Press any key...");
+        }
+
+
         return 0;
     }
 
