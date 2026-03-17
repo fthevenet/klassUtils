@@ -126,11 +126,13 @@ public class KlassUtils {
                     description = "number of classes to generate",
                     defaultValue = "1") int n,
             @Option(names = {"-w", "--wait"},
-                    description = "Wait for user action before halting") boolean wait) {
+                    description = "Wait for user action before halting") boolean wait,
+            @Option(names = {"-v", "--verbose"}) boolean verbose) {
         int progress = -1;
 
         // retain the objects to avoid class unloading
         Object[] keepAlive = new Object[n];
+
 
         for (int i = 0; i < n; i++) {
             String className = "Class_" + i;
@@ -141,11 +143,17 @@ public class KlassUtils {
                     .load(getClass().getClassLoader())
                     .getLoaded();
             int current = (int) Math.round(((double) i / n) * 100);
-            if (current > progress) {
-                IO.print(String.format("%s%%...", current));
-                progress = current;
+            if (verbose){
+                IO.print(String.format("\r%s%% (%s/%s)", current, i, n));
+            } else {
+                if (current > progress) {
+                    IO.print(String.format("\r%s%%", current));
+                    progress = current;
+                }
             }
+
         }
+
 
         if (wait) {
             IO.readln("Press any key...");
