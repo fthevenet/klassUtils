@@ -21,11 +21,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 
 @Command(
         name = "klass-utils",
@@ -116,7 +114,6 @@ public class KlassUtils {
         return 0;
     }
 
-
     @Command(name = "load-dummy-classes",
             aliases = {"load"},
             mixinStandardHelpOptions = true
@@ -128,12 +125,9 @@ public class KlassUtils {
             @Option(names = {"-w", "--wait"},
                     description = "Wait for user action before halting") boolean wait,
             @Option(names = {"-v", "--verbose"}) boolean verbose) {
-        int progress = -1;
-
         // retain the objects to avoid class unloading
         Object[] keepAlive = new Object[n];
-
-
+        int progress = -1;
         for (int i = 0; i < n; i++) {
             String className = "Class_" + i;
             keepAlive[i] = new ByteBuddy()
@@ -143,7 +137,7 @@ public class KlassUtils {
                     .load(getClass().getClassLoader())
                     .getLoaded();
             int current = (int) Math.round(((double) i / n) * 100);
-            if (verbose){
+            if (verbose) {
                 IO.print(String.format("\r%s%% (%s/%s)", current, i, n));
             } else {
                 if (current > progress) {
@@ -151,15 +145,10 @@ public class KlassUtils {
                     progress = current;
                 }
             }
-
         }
-
-
         if (wait) {
             IO.readln("Press any key...");
         }
-
-
         return 0;
     }
 
@@ -167,6 +156,4 @@ public class KlassUtils {
         int exitCode = new CommandLine(new KlassUtils()).execute(args);
         System.exit(exitCode);
     }
-
-
 }
